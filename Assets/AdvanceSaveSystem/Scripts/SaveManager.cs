@@ -7,12 +7,6 @@ public class SaveManager : MonoBehaviour
 {
     public static SaveManager instance;
 
-    /// <summary>
-    /// dictionary to store the game data
-    /// Dictionary value is an Object so that we can store anything from int to custom list
-    /// </summary>
-    private Dictionary<string, object> saveData = new Dictionary<string, object>();
-
     //we create a new object of GameData type
     GameData gameData = new GameData();
 
@@ -28,7 +22,7 @@ public class SaveManager : MonoBehaviour
     public void ClearData()
     {
         DebugLog("GameData Cleared");
-        saveData.Clear();//we 1st clear the dictionary
+        gameData.saveData.Clear();//we 1st clear the dictionary
         CreateData();//and create the new data
     }
 
@@ -40,7 +34,7 @@ public class SaveManager : MonoBehaviour
     /// <returns></returns>
     public T LoadData<T>(string key)
     {
-        return (T)saveData[key];
+        return (T)gameData.saveData[key];
     }
 
     /// <summary>
@@ -51,7 +45,7 @@ public class SaveManager : MonoBehaviour
     /// <returns></returns>
     public bool HasKey<T>(string key)
     {
-        if (saveData.ContainsKey(key))
+        if (gameData.saveData.ContainsKey(key))
         {
             return true;
         }
@@ -68,15 +62,15 @@ public class SaveManager : MonoBehaviour
     public void SaveData<T>(string key, T value)
     {
         //check if dictionary has the key
-        if (saveData.ContainsKey(key))
+        if (gameData.saveData.ContainsKey(key))
         {
             //if yes then override the value
-            saveData[key] = value;
+            gameData.saveData[key] = value;
         }
         else
         {
             //else create the new key,value pair and add to dictionary
-            saveData.Add(key, value);
+            gameData.saveData.Add(key, value);
         }
     }
 
@@ -95,8 +89,6 @@ public class SaveManager : MonoBehaviour
             //create new BinaryFormatter object
             BinaryFormatter bf = new BinaryFormatter();
             DebugLog("Created BinaryFormatter");
-            //set the GameData saveData dictionary value to saveData dictionry value
-            gameData.saveData = saveData;
             DebugLog("Data set");
             //serialise the info to the file
             bf.Serialize(file, gameData);
@@ -141,8 +133,7 @@ public class SaveManager : MonoBehaviour
                 file = File.Open(Application.persistentDataPath + "/saveManager.data", FileMode.Open);
                 
                 gameData = (GameData)bf.Deserialize(file);//deserialize data and cast it as GameData
-                
-                saveData = gameData.saveData;//set the saveData dictionary 
+
                 DebugLog("GameData Loaded");
             }
             catch (System.Exception e)
@@ -176,7 +167,7 @@ public class SaveManager : MonoBehaviour
 [System.Serializable]
 class GameData
 {
-    public Dictionary<string, object> saveData = new Dictionary<string, object>();
+    public Dictionary<string, object> saveData;
     public GameData()
     {
         saveData = new Dictionary<string, object>();
